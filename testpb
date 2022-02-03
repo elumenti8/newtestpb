@@ -1,0 +1,73 @@
+- name: Update apt-get repo and cache
+apt: update_cache=yes force_apt_get=yes cache_vald_time=3600
+
+ tasks:
+  - name: Установить curl
+    yum:
+      name: "{{ package }}"
+    vars:
+      package:
+      - curl
+      state: latest
+- name: Start service firewalld, if not started
+  ansible.builtin.service:
+    name: firewalld
+    state: started
+--
+- name: Разрешение 80 8080 1834 порта - firewalld
+  hosts: test_servers
+  become_method: sudo
+  become_user: root
+
+  tasks:
+  - name: Разрешим 80 порт
+    ansible.posix.firewalld:
+      service: http
+      permanent: yes
+      state: enabled
+  - name: Разрешим 8080 TCP порт
+    ansible.posix.firewalld:
+      port: 8080/tcp
+      permanent: yes
+      state: enabled\
+   - name: Разрешим 8080 UDP порт
+    ansible.posix.firewalld:
+      port: 8080/udp
+      permanent: yes
+      state: enabled     
+   - name: Разрешим 1834 TCP порт
+    ansible.posix.firewalld:
+      port: 1834/tcp
+      permanent: yes
+      state: enabled  
+   - name: Разрешим 1834 UDP порт
+    ansible.posix.firewalld:
+      port: 1834/udp
+      permanent: yes
+      state: enabled             
+  - name: Перезапустим service firewalld на всех узлах
+    ansible.builtin.service:
+      name: firewalld
+      state: restarted
+- name: Изменение SSH порта
+  hosts: all
+  gather_facts: false
+  vars:
+    custom_ssh_port: 1834
+  tasks:
+    - name: test default ssh port
+      local_action: wait_for port=22 timeout=5 host={{inventory_hostname}}
+      register: default_ssh
+      ignore_errors: true
+    - name: set ansible_ssh_port to default
+      set_fact: ansible_ssh_port=22
+      when: default_ssh.elapsed < 5
+    - name: test ssh on high port
+      local_action: wait_for port={{custom_ssh_port}} timeout=5 host={{inventory_hostname}}
+      register: high_ssh
+      when: default_ssh.elapsed >= 5
+      ignore_errors: true
+    - name: set ansible_ssh_port high
+      set_fact: ansible_ssh_port={{custom_ssh_port}}
+      when: default_ssh.elapsed >= 5 and high_ssh.elapsed < 5
+
