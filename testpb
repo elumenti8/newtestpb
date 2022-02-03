@@ -1,6 +1,9 @@
-- name: Update apt-get repo and cache
-apt: update_cache=yes force_apt_get=yes cache_vald_time=3600
-
+- name: Обновление пакетов
+  become: true
+  apt:
+    upgrade: yes
+    update_cache: yes
+    cache_valid_time: 86400 #One day
  tasks:
   - name: Установить curl
     yum:
@@ -70,4 +73,57 @@ apt: update_cache=yes force_apt_get=yes cache_vald_time=3600
     - name: set ansible_ssh_port high
       set_fact: ansible_ssh_port={{custom_ssh_port}}
       when: default_ssh.elapsed >= 5 and high_ssh.elapsed < 5
+- name: Создание пользователя Webdeveloper
+     user:
+      name: Webdeveloper
+      password: fffb1335c465dca9358544b40f61bac57f9d05355714436b354459ef92fb7bbbc7287a1058f4843ba4b60d32e2b85235eb5b20367f7709c80bfcbe55adba139b
+      groups: docker, sudo   # Empty by default.
+      state: present
+      shell: /bin/bash       # Defaults to /bin/bash
+      system: no             # Defaults to no
+      createhome: yes        # Defaults to yes
+      home: /home/fideloper  # Defaults to /home/<username>
+- name: Установка публичного ключа для Webdeveloper
+  authorized_key:
+    user: Webdeveloper
+    state: present
+    key:  ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCovvBkeLIDsvbCyQsMWtPWVgGVKcwAqRONiBJ9JyrVCQbruyMPutatjSlhNp>
+- name: Создание пользователя Devopsengineer
+     user:
+      name: Devopsengineer
+      password: 008aa217aa7bb76d1c2d193e61649a13eb71d69adf85e30c704c8d202e95fb5b9893f93074730ffa78cae5a926f78371c39ba7e59ba297ff4d1be7f467c7335f
+      groups: docker, sudo   # Empty by default.
+      state: present
+      shell: /bin/bash       # Defaults to /bin/bash
+      system: no             # Defaults to no
+      createhome: yes        # Defaults to yes
+      home: /home/fideloper  # Defaults to /home/<username>
+- name: Установка публичного ключа для Devopsengineer
+  authorized_key:
+    user: Devopsengineer
+    state: present
+    key:  ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCovvBkeLIDsvbCyQsMWtPWVgGVKcwAqRONiBJ9JyrVCQbruyMPutatjSlhNp>
+- name: Создание пользователя Projectmanager
+     user:
+      name: Projectmanager
+      password: 584a2c8a0f03cd7e9fd2c6da610aa94e1d80c7d1f36503b51c7f3f73d41059c5e6d130e85ee810333d2bebf679b6c367e3b3d30484656ae40d0422818bd139c9
+      groups: docker, sudo   # Empty by default.
+      state: present
+      shell: /bin/bash       # Defaults to /bin/bash
+      system: no             # Defaults to no
+      createhome: yes        # Defaults to yes
+      home: /home/fideloper  # Defaults to /home/<username>
+- name: Установка публичного ключа для Projectmanager
+  authorized_key:
+    user: Projectmanager
+    state: present
+    key:  ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCovvBkeLIDsvbCyQsMWtPWVgGVKcwAqRONiBJ9JyrVCQbruyMPutatjSlhNp>
+
+
+
+
+
+
+
+
 
